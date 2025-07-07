@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Composer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .post-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .post-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+
+        .user-info h3 {
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .user-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .post-textarea {
+            width: 100%;
+            min-height: 120px;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .post-textarea:focus {
+            border-color: #667eea;
+        }
+
+        .post-textarea::placeholder {
+            color: #999;
+        }
+
+        .post-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .option-btn:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .option-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .char-count {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .char-count.warning {
+            color: #ff6b6b;
+        }
+
+        .post-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .post-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .post-btn:active {
+            transform: translateY(0);
+        }
+
+        .post-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .post-container {
+                padding: 20px;
+            }
+            
+            .post-options {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .option-btn {
+                flex: 1;
+                min-width: 120px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="post-container">
+        <div class="header">
+            <div class="avatar">U</div>
+            <div class="user-info">
+                <h3>Your Name</h3>
+                <p>@username</p>
+            </div>
+        </div>
+
+        <textarea 
+            class="post-textarea" 
+            placeholder="What's on your mind? Share your thoughts..."
+            maxlength="280"
+            id="postText"
+        ></textarea>
+
+        <div class="post-options">
+            <button class="option-btn" onclick="toggleOption(this, 'photo')">
+                📷 Photo
+            </button>
+            <button class="option-btn" onclick="toggleOption(this, 'video')">
+                🎥 Video
+            </button>
+            <button class="option-btn" onclick="toggleOption(this, 'poll')">
+                📊 Poll
+            </button>
+            <button class="option-btn" onclick="toggleOption(this, 'location')">
+                📍 Location
+            </button>
+        </div>
+
+        <div class="post-actions">
+            <span class="char-count" id="charCount">0/280</span>
+            <button class="post-btn" onclick="publishPost()">Post</button>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            ✅ Your post has been published successfully!
+        </div>
+    </div>
+
+    <script>
+        const postText = document.getElementById('postText');
+        const charCount = document.getElementById('charCount');
+        const postBtn = document.querySelector('.post-btn');
+        const successMessage = document.getElementById('successMessage');
+
+        // Update character count
+        postText.addEventListener('input', function() {
+            const length = this.value.length;
+            charCount.textContent = `${length}/280`;
+            
+            if (length > 250) {
+                charCount.classList.add('warning');
+            } else {
+                charCount.classList.remove('warning');
+            }
+            
+            postBtn.disabled = length === 0;
+        });
+
+        // Toggle post options
+        function toggleOption(button, type) {
+            button.classList.toggle('active');
+            
+            // Add visual feedback
+            if (button.classList.contains('active')) {
+                button.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    button.style.transform = 'scale(1)';
+                }, 150);
+            }
+        }
+
+        // Publish post
+        function publishPost() {
+            const text = postText.value.trim();
+            
+            if (text.length === 0) {
+                return;
+            }
+            
+            // Simulate posting
+            postBtn.textContent = 'Posting...';
+            postBtn.disabled = true;
+            
+            setTimeout(() => {
+                // Reset form
+                postText.value = '';
+                charCount.textContent = '0/280';
+                charCount.classList.remove('warning');
+                
+                // Reset option buttons
+                document.querySelectorAll('.option-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Show success message
+                successMessage.style.display = 'block';
+                
+                // Reset button
+                postBtn.textContent = 'Post';
+                postBtn.disabled = false;
+                
+                // Hide success message after 3 seconds
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+                
+            }, 1500);
+        }
+
+        // Auto-resize textarea
+        postText.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
+        });
+
+        // Initial state
+        postBtn.disabled = true;
+    </script>
+</body>
+</html>
