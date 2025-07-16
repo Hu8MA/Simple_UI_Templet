@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic Stargazing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #0c0c1e 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated star field background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        .star:nth-child(odd) {
+            animation-delay: 1s;
+        }
+
+        .star:nth-child(3n) {
+            animation-delay: 2s;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .shooting-star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: linear-gradient(45deg, #fff, #87ceeb);
+            border-radius: 50%;
+            animation: shoot 4s linear infinite;
+        }
+
+        @keyframes shoot {
+            0% {
+                opacity: 0;
+                transform: translateX(-100px) translateY(100px);
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(300px) translateY(-100px);
+            }
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .app-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ffd700, #87ceeb, #dda0dd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            font-weight: 300;
+        }
+
+        .moon-phase-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .moon-phase-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .moon-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .moon-icon {
+            font-size: 4rem;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .moon-info {
+            text-align: right;
+        }
+
+        .phase-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #ffd700;
+        }
+
+        .phase-percentage {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .celestial-events {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #87ceeb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideInFromLeft 0.6s ease-out;
+        }
+
+        .event-item:last-child {
+            border-bottom: none;
+        }
+
+        @keyframes slideInFromLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .event-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.4rem;
+            background: linear-gradient(45deg, rgba(255, 215, 0, 0.2), rgba(135, 206, 235, 0.2));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .event-details {
+            flex: 1;
+        }
+
+        .event-name {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 3px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .event-time {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .constellation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .constellation-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .constellation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .constellation-card:hover::before {
+            left: 100%;
+        }
+
+        .constellation-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .constellation-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            display: block;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+        }
+
+        .constellation-name {
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 5px;
+        }
+
+        .constellation-visibility {
+            font-size: 0.8rem;
+            color: #87ceeb;
+        }
+
+        .weather-astronomy {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .weather-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .weather-item {
+            text-align: center;
+            padding: 15px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .weather-icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .weather-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: #87ceeb;
+        }
+
+        .weather-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .observation-controls {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-btn.active {
+            background: linear-gradient(45deg, #ffd700, #87ceeb);
+            color: #0c0c1e;
+            font-weight: 600;
+        }
+
+        .telescope-view {
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%);
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .telescope-view::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: scan 8s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .target-object {
+            font-size: 2rem;
+            z-index: 1;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .app-title {
+                font-size: 1.8rem;
+            }
+            
+            .moon-icon {
+                font-size: 3rem;
+            }
+            
+            .constellation-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .weather-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated star field -->
+    <div class="stars" id="starField"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="app-title">✨ Cosmic Guide</h1>
+            <p class="subtitle">Your portal to the universe</p>
+        </div>
+
+        <div class="moon-phase-card">
+            <div class="moon-display">
+                <div class="moon-icon" id="moonIcon">🌗</div>
+                <div class="moon-info">
+                    <div class="phase-name" id="phaseName">Third Quarter</div>
+                    <div class="phase-percentage" id="phasePercentage">47% illuminated</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="celestial-events">
+            <div class="section-title">
+                <span>🌠</span>
+                Tonight's Events
+            </div>
+            <div class="event-item">
+                <div class="event-icon">🪐</div>
+                <div class="event-details">
+                    <div class="event-name">Saturn Opposition</div>
+                    <div class="event-time">Best viewing: 11:30 PM</div>
+                </div>
+            </div>
+            <div class="event-item">
+                <div class="event-icon">☄️</div>
+                <div class="event-details">
+                    <div class="event-name">Perseid Meteor Shower</div>
+                    <div class="event-time">Peak: 2:15 AM - 4:30 AM</div>
+                </div>
+            </div>
+            <div class="event-item">
+                <div class="event-icon">🌌</div>
+                <div class="event-details">
+                    <div class="event-name">Milky Way Core</div>
+                    <div class="event-time">Visible: 10:00 PM - 5:00 AM</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="constellation-grid">
+            <div class="constellation-card">
+                <span class="constellation-icon">🦎</span>
+                <div class="constellation-name">Draco</div>
+                <div class="constellation-visibility">High in NE</div>
+            </div>
+            <div class="constellation-card">
+                <span class="constellation-icon">🦢</span>
+                <div class="constellation-name">Cygnus</div>
+                <div class="constellation-visibility">Overhead</div>
+            </div>
+            <div class="constellation-card">
+                <span class="constellation-icon">🏹</span>
+                <div class="constellation-name">Sagittarius</div>
+                <div class="constellation-visibility">Low in SW</div>
+            </div>
+            <div class="constellation-card">
+                <span class="constellation-icon">🦅</span>
+                <div class="constellation-name">Aquila</div>
+                <div class="constellation-visibility">High in S</div>
+            </div>
+        </div>
+
+        <div class="weather-astronomy">
+            <div class="section-title">
+                <span>🌙</span>
+                Observing Conditions
+            </div>
+            <div class="weather-grid">
+                <div class="weather-item">
+                    <span class="weather-icon">☁️</span>
+                    <div class="weather-value" id="cloudCover">15%</div>
+                    <div class="weather-label">Cloud Cover</div>
+                </div>
+                <div class="weather-item">
+                    <span class="weather-icon">👁️</span>
+                    <div class="weather-value" id="visibility">Excellent</div>
+                    <div class="weather-label">Visibility</div>
+                </div>
+                <div class="weather-item">
+                    <span class="weather-icon">💨</span>
+                    <div class="weather-value" id="windSpeed">8 mph</div>
+                    <div class="weather-label">Wind</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="observation-controls">
+            <div class="section-title">
+                <span>🔭</span>
+                Virtual Telescope
+            </div>
+            
+            <div class="telescope-view">
+                <div class="target-object" id="targetObject">🪐</div>
+            </div>
+            
+            <div class="control-row">
+                <button class="control-btn active" data-target="🪐" data-name="Saturn">
+                    🪐 Saturn
+                </button>
+                <button class="control-btn" data-target="🌕" data-name="Moon">
+                    🌕 Moon
+                </button>
+            </div>
+            
+            <div class="control-row">
+                <button class="control-btn" data-target="⭐" data-name="Star Cluster">
+                    ⭐ M13
+                </button>
+                <button class="control-btn" data-target="🌌" data-name="Nebula">
+                    🌌 Orion
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create animated star field
+        function createStarField() {
+            const starField = document.getElementById('starField');
+            const numStars = 150;
+            
+            for (let i = 0; i < numStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starField.appendChild(star);
+            }
+            
+            // Add shooting stars
+            for (let i = 0; i < 3; i++) {
+                const shootingStar = document.createElement('div');
+                shootingStar.className = 'shooting-star';
+                shootingStar.style.top = Math.random() * 50 + '%';
+                shootingStar.style.left = Math.random() * 100 + '%';
+                shootingStar.style.animationDelay = Math.random() * 4 + 's';
+                starField.appendChild(shootingStar);
+            }
+        }
+
+        // Moon phase animation
+        const moonPhases = [
+            { icon: '🌑', name: 'New Moon', percentage: '0%' },
+            { icon: '🌒', name: 'Waxing Crescent', percentage: '25%' },
+            { icon: '🌓', name: 'First Quarter', percentage: '50%' },
+            { icon: '🌔', name: 'Waxing Gibbous', percentage: '75%' },
+            { icon: '🌕', name: 'Full Moon', percentage: '100%' },
+            { icon: '🌖', name: 'Waning Gibbous', percentage: '75%' },
+            { icon: '🌗', name: 'Third Quarter', percentage: '50%' },
+            { icon: '🌘', name: 'Waning Crescent', percentage: '25%' }
+        ];
+
+        let currentPhaseIndex = 6; // Starting with Third Quarter
+
+        function cycleMoonPhase() {
+            currentPhaseIndex = (currentPhaseIndex + 1) % moonPhases.length;
+            const phase = moonPhases[currentPhaseIndex];
+            
+            document.getElementById('moonIcon').textContent = phase.icon;
+            document.getElementById('phaseName').textContent = phase.name;
+            document.getElementById('phasePercentage').textContent = phase.percentage + ' illuminated';
+        }
+
+        // Telescope controls
+        document.querySelectorAll('.control-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                document.querySelectorAll('.control-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                // Update telescope view
+                const target = btn.dataset.target;
+                const targetObject = document.getElementById('targetObject');
+                
+                // Animate target change
+                targetObject.style.transform = 'scale(0)';
+                setTimeout(() => {
+                    targetObject.textContent = target;
+                    targetObject.style.transform = 'scale(1)';
+                }, 200);
+            });
+        });
+
+        // Dynamic weather updates
+        function updateObservingConditions() {
+            const conditions = [
+                { clouds: '5%', visibility: 'Perfect', wind: '3 mph' },
+                { clouds: '15%', visibility: 'Excellent', wind: '8 mph' },
+                { clouds: '25%', visibility: 'Good', wind: '12 mph' },
+                { clouds: '45%', visibility: 'Fair', wind: '15 mph' }
+            ];
+            
+            const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
+            
+            document.getElementById('cloudCover').textContent = randomCondition.clouds;
+            document.getElementById('visibility').textContent = randomCondition.visibility;
+            document.getElementById('windSpeed').textContent = randomCondition.wind;
+        }
+
+        // Constellation card interactions
+        document.querySelectorAll('.constellation-card').forEach(card => {
+            card.addEventListener('click', () => {
+                card.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    card.style.transform = '';
+                }, 150);
+                
+                // Add sparkle effect
+                const sparkle = document.createElement('div');
+                sparkle.style.position = 'absolute';
+                sparkle.style.top = '50%';
+                sparkle.style.left = '50%';
+                sparkle.style.transform = 'translate(-50%, -50%)';
+                sparkle.style.fontSize = '1.5rem';
+                sparkle.textContent = '✨';
+                sparkle.style.pointerEvents = 'none';
+                sparkle.style.animation = 'sparkle 1s ease-out forwards';
+                
+                card.style.position = 'relative';
+                card.appendChild(sparkle);
+                
+                setTimeout(() => sparkle.remove(), 1000);
+            });
+        });
+
+        // Add sparkle animation
+        const sparkleStyle = document.createElement('style');
+        sparkleStyle.textContent = `
+            @keyframes sparkle {
+                0% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(0);
+                }
+                50% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1.2);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(0) translateY(-20px);
+                }
+            }
+        `;
+        document.head.appendChild(sparkleStyle);
+
+        // Initialize app
+        createStarField();
+        
+        // Auto-cycle moon phases every 10 seconds
+        setInterval(cycleMoonPhase, 10000);
+        
+        // Update weather conditions every 15 seconds
+        setInterval(updateObservingConditions, 15000);
+        
+        // Add some interactive celestial events
+        document.querySelectorAll('.event-item').forEach((item, index) => {
+            item.addEventListener('click', () => {
+                item.style.background = 'rgba(255, 215, 0, 0.1)';
+                setTimeout(() => {
+                    item.style.background = '';
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>

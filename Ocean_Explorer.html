@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Ocean Explorer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #001122 0%, #003366 30%, #004488 60%, #0066aa 100%);
+            min-height: 100vh; color: white; overflow-x: hidden; position: relative;
+        }
+        .ocean-waves { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.3; }
+        .wave {
+            position: absolute; width: 200%; height: 200px;
+            background: linear-gradient(45deg, transparent, rgba(0, 150, 255, 0.1), transparent);
+            border-radius: 50%; animation: wave-motion 8s ease-in-out infinite;
+        }
+        .wave:nth-child(1) { top: 10%; animation-delay: 0s; }
+        .wave:nth-child(2) { top: 30%; animation-delay: 2s; }
+        .wave:nth-child(3) { top: 50%; animation-delay: 4s; }
+        .wave:nth-child(4) { top: 70%; animation-delay: 6s; }
+        @keyframes wave-motion {
+            0%, 100% { transform: translateX(-50%) translateY(0px) rotate(0deg); opacity: 0.1; }
+            50% { transform: translateX(-40%) translateY(-20px) rotate(5deg); opacity: 0.3; }
+        }
+        .bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .bubble {
+            position: absolute; background: radial-gradient(circle, rgba(255, 255, 255, 0.3), rgba(0, 150, 255, 0.1));
+            border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.2); animation: float-up 6s linear infinite;
+        }
+        @keyframes float-up {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; } 90% { opacity: 1; }
+            100% { transform: translateY(-100px) scale(1); opacity: 0; }
+        }
+        .marine-life { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+        .fish { position: absolute; font-size: 1.5rem; animation: swim 12s linear infinite; }
+        @keyframes swim {
+            0% { transform: translateX(-100px) translateY(0px); }
+            25% { transform: translateX(25vw) translateY(-20px); }
+            50% { transform: translateX(50vw) translateY(10px); }
+            75% { transform: translateX(75vw) translateY(-15px); }
+            100% { transform: translateX(calc(100vw + 100px)) translateY(0px); }
+        }
+        .container { max-width: 400px; margin: 0 auto; padding: 20px; position: relative; z-index: 10; }
+        .header { text-align: center; margin-bottom: 30px; padding: 20px 0; }
+        .app-title {
+            font-size: 2.2rem; font-weight: 700;
+            background: linear-gradient(45deg, #00ccff, #0099cc, #66ddff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 8px; animation: wave-text 3s ease-in-out infinite;
+        }
+        @keyframes wave-text {
+            0%, 100% { filter: brightness(1); text-shadow: 0 0 20px rgba(0, 204, 255, 0.3); }
+            50% { filter: brightness(1.2); text-shadow: 0 0 30px rgba(0, 204, 255, 0.5); }
+        }
+        .subtitle { color: rgba(255, 255, 255, 0.8); font-size: 1rem; font-weight: 300; }
+        .depth-meter {
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); border-radius: 25px;
+            padding: 25px; margin-bottom: 25px; border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3); position: relative; overflow: hidden;
+        }
+        .depth-display { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; position: relative; z-index: 1; }
+        .depth-icon {
+            font-size: 3.5rem; filter: drop-shadow(0 0 15px rgba(0, 150, 255, 0.5));
+            animation: submarine-bob 4s ease-in-out infinite;
+        }
+        @keyframes submarine-bob { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-8px) rotate(-2deg); } }
+        .depth-info { text-align: right; }
+        .current-depth { font-size: 2rem; font-weight: 700; margin-bottom: 5px; color: #00ccff; text-shadow: 0 0 10px rgba(0, 204, 255, 0.5); }
+        .depth-zone { font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); }
+        .pressure-bar { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.2); border-radius: 4px; overflow: hidden; position: relative; z-index: 1; }
+        .pressure-fill {
+            height: 100%; background: linear-gradient(90deg, #00ccff, #0066cc); width: 45%; border-radius: 4px;
+            position: relative; animation: pressure-pulse 2s ease-in-out infinite; transition: width 0.5s ease;
+        }
+        @keyframes pressure-pulse { 0%, 100% { box-shadow: 0 0 10px rgba(0, 204, 255, 0.3); } 50% { box-shadow: 0 0 20px rgba(0, 204, 255, 0.6); } }
+        .marine-discoveries { background: rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid rgba(255, 255, 255, 0.15); }
+        .section-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 15px; color: #66ddff; display: flex; align-items: center; gap: 10px; }
+        .discovery-item {
+            display: flex; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer; transition: all 0.3s ease; border-radius: 10px;
+        }
+        .discovery-item:hover { background: rgba(255, 255, 255, 0.05); padding-left: 10px; padding-right: 10px; }
+        .discovery-item:last-child { border-bottom: none; }
+        .discovery-icon {
+            width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin-right: 15px; font-size: 1.5rem; background: radial-gradient(circle, rgba(0, 150, 255, 0.3), rgba(0, 100, 200, 0.1));
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        .discovery-details { flex: 1; }
+        .species-name { font-size: 1.1rem; font-weight: 500; margin-bottom: 4px; color: rgba(255, 255, 255, 0.9); }
+        .species-info { font-size: 0.85rem; color: rgba(255, 255, 255, 0.6); }
+        .rarity-badge {
+            background: linear-gradient(45deg, #ffd700, #ffaa00); color: #003366; padding: 4px 8px;
+            border-radius: 8px; font-size: 0.7rem; font-weight: 600; transition: all 0.3s ease;
+        }
+        .ocean-zones { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
+        .zone-card {
+            background: rgba(255, 255, 255, 0.08); border-radius: 18px; padding: 20px; text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.15); transition: all 0.4s ease; cursor: pointer; position: relative; overflow: hidden;
+        }
+        .zone-card:hover {
+            background: rgba(255, 255, 255, 0.12); transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0, 150, 255, 0.2);
+        }
+        .zone-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; filter: drop-shadow(0 0 10px rgba(0, 150, 255, 0.3)); }
+        .zone-name { font-size: 1rem; font-weight: 500; color: rgba(255, 255, 255, 0.9); margin-bottom: 5px; }
+        .zone-depth { font-size: 0.8rem; color: #66ddff; }
+        .ocean-conditions { background: rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid rgba(255, 255, 255, 0.15); }
+        .conditions-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px; }
+        .condition-item { text-align: center; padding: 15px 10px; background: rgba(255, 255, 255, 0.05); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .condition-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
+        .condition-value { font-size: 1.1rem; font-weight: 600; margin-bottom: 3px; color: #66ddff; }
+        .condition-label { font-size: 0.75rem; color: rgba(255, 255, 255, 0.6); }
+        .dive-controls { background: rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 20px; border: 1px solid rgba(255, 255, 255, 0.15); }
+        .control-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .dive-btn {
+            flex: 1; padding: 15px; border: none; border-radius: 15px; background: rgba(255, 255, 255, 0.1);
+            color: white; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2); display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .dive-btn:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-2px); box-shadow: 0 10px 25px rgba(0, 150, 255, 0.2); }
+        .dive-btn:active { transform: translateY(0); }
+        .sonar-display {
+            background: radial-gradient(circle, rgba(0, 150, 255, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%);
+            border-radius: 50%; width: 150px; height: 150px; margin: 20px auto; display: flex;
+            align-items: center; justify-content: center; border: 3px solid rgba(0, 150, 255, 0.3); position: relative; overflow: hidden;
+        }
+        .sonar-display::before {
+            content: ''; position: absolute; width: 100%; height: 100%;
+            background: conic-gradient(from 0deg, transparent, rgba(0, 150, 255, 0.3), transparent);
+            animation: sonar-sweep 4s linear infinite;
+        }
+        @keyframes sonar-sweep { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .sonar-blip { font-size: 2rem; z-index: 1; animation: blip-pulse 2s ease-in-out infinite; }
+        @keyframes blip-pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 1; } }
+        @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+        @keyframes sonar-wave { 0% { width: 0; height: 0; opacity: 1; } 100% { width: 200px; height: 200px; opacity: 0; } }
+        .light-beam {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 20%, rgba(255, 255, 0, 0.1) 0%, transparent 50%);
+            pointer-events: none; z-index: 5;
+        }
+        @media (max-width: 480px) {
+            .container { padding: 15px; }
+            .app-title { font-size: 1.8rem; }
+            .depth-icon { font-size: 3rem; }
+            .ocean-zones { grid-template-columns: 1fr; }
+            .conditions-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="ocean-waves"><div class="wave"></div><div class="wave"></div><div class="wave"></div><div class="wave"></div></div>
+    <div class="bubbles" id="bubbles"></div>
+    <div class="marine-life" id="marineLife"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="app-title">🌊 Ocean Explorer</h1>
+            <p class="subtitle">Dive into the deep blue mysteries</p>
+        </div>
+
+        <div class="depth-meter">
+            <div class="depth-display">
+                <div class="depth-icon" id="submersible">🚢</div>
+                <div class="depth-info">
+                    <div class="current-depth" id="currentDepth">-847m</div>
+                    <div class="depth-zone" id="depthZone">Bathyal Zone</div>
+                </div>
+            </div>
+            <div class="pressure-bar"><div class="pressure-fill" id="pressureFill"></div></div>
+        </div>
+
+        <div class="marine-discoveries">
+            <div class="section-title"><span>🐠</span>Recent Discoveries</div>
+            <div class="discovery-item" onclick="logDiscovery(this)">
+                <div class="discovery-icon">🦑</div>
+                <div class="discovery-details">
+                    <div class="species-name">Giant Pacific Octopus</div>
+                    <div class="species-info">Intelligent cephalopod, 30ft wingspan</div>
+                </div>
+                <div class="rarity-badge">Rare</div>
+            </div>
+            <div class="discovery-item" onclick="logDiscovery(this)">
+                <div class="discovery-icon">🕸</div>
+                <div class="discovery-details">
+                    <div class="species-name">Deep Sea Coral Garden</div>
+                    <div class="species-info">Ancient reef system, 500+ years old</div>
+                </div>
+                <div class="rarity-badge">Epic</div>
+            </div>
+            <div class="discovery-item" onclick="logDiscovery(this)">
+                <div class="discovery-icon">🐡</div>
+                <div class="discovery-details">
+                    <div class="species-name">Bioluminescent Jellyfish</div>
+                    <div class="species-info">Glowing cnidarian, deep water species</div>
+                </div>
+                <div class="rarity-badge">Common</div>
+            </div>
+        </div>
+
+        <div class="ocean-zones">
+            <div class="zone-card" onclick="jumpToZone(0)">
+                <span class="zone-icon">☀️</span>
+                <div class="zone-name">Sunlight Zone</div>
+                <div class="zone-depth">0-200m</div>
+            </div>
+            <div class="zone-card" onclick="jumpToZone(2)">
+                <span class="zone-icon">🌙</span>
+                <div class="zone-name">Twilight Zone</div>
+                <div class="zone-depth">200-1000m</div>
+            </div>
+            <div class="zone-card" onclick="jumpToZone(4)">
+                <span class="zone-icon">🌑</span>
+                <div class="zone-name">Midnight Zone</div>
+                <div class="zone-depth">1000-4000m</div>
+            </div>
+            <div class="zone-card" onclick="jumpToZone(5)">
+                <span class="zone-icon">🕳️</span>
+                <div class="zone-name">Abyssal Zone</div>
+                <div class="zone-depth">4000-6000m</div>
+            </div>
+        </div>
+
+        <div class="ocean-conditions">
+            <div class="section-title"><span>🌊</span>Current Conditions</div>
+            <div class="conditions-grid">
+                <div class="condition-item">
+                    <span class="condition-icon">🌡️</span>
+                    <div class="condition-value" id="temperature">4°C</div>
+                    <div class="condition-label">Temperature</div>
+                </div>
+                <div class="condition-item">
+                    <span class="condition-icon">🔄</span>
+                    <div class="condition-value" id="current">2.3 kts</div>
+                    <div class="condition-label">Current</div>
+                </div>
+                <div class="condition-item">
+                    <span class="condition-icon">👁️</span>
+                    <div class="condition-value" id="visibility">15m</div>
+                    <div class="condition-label">Visibility</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dive-controls">
+            <div class="section-title"><span>⚓</span>Dive Operations</div>
+            <div class="sonar-display"><div class="sonar-blip" id="sonarBlip">🐋</div></div>
+            <div class="control-row">
+                <button class="dive-btn" onclick="ascend()">⬆️ Ascend</button>
+                <button class="dive-btn" onclick="descend()">⬇️ Descend</button>
+            </div>
+            <div class="control-row">
+                <button class="dive-btn" onclick="activateSonar()">📡 Sonar Scan</button>
+                <button class="dive-btn" onclick="toggleLights()">💡 Lights</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const oceanZones = [
+            { name: 'Surface', depth: 0, icon: '🚢', zone: 'Surface Waters', temp: '24°C', visibility: '50m' },
+            { name: 'Shallow', depth: -150, icon: '🤿', zone: 'Sunlight Zone', temp: '18°C', visibility: '40m' },
+            { name: 'Twilight', depth: -500, icon: '🐠', zone: 'Twilight Zone', temp: '12°C', visibility: '25m' },
+            { name: 'Deep', depth: -847, icon: '🔦', zone: 'Bathyal Zone', temp: '4°C', visibility: '15m' },
+            { name: 'Abyss', depth: -2500, icon: '🚁', zone: 'Midnight Zone', temp: '2°C', visibility: '8m' },
+            { name: 'Trench', depth: -6000, icon: '🛸', zone: 'Abyssal Zone', temp: '1°C', visibility: '5m' }
+        ];
+
+        let currentZoneIndex = 3, lightsOn = false, sonarIndex = 0;
+        const sonarCreatures = ['🐋', '🦈', '🐙', '🦑', '🐠', '🐡', '🦀', '🐬'];
+
+        function updateDepthDisplay() {
+            const zone = oceanZones[currentZoneIndex];
+            document.getElementById('submersible').textContent = zone.icon;
+            document.getElementById('currentDepth').textContent = zone.depth + 'm';
+            document.getElementById('depthZone').textContent = zone.zone;
+            document.getElementById('temperature').textContent = zone.temp;
+            document.getElementById('visibility').textContent = zone.visibility;
+            const pressurePercentage = Math.min((Math.abs(zone.depth) / 6000) * 100, 100);
+            document.getElementById('pressureFill').style.width = pressurePercentage + '%';
+            const currentSpeed = (Math.random() * 2 + 1).toFixed(1);
+            document.getElementById('current').textContent = currentSpeed + ' kts';
+        }
+
+        function ascend() {
+            if (currentZoneIndex > 0) {
+                currentZoneIndex--;
+                updateDepthDisplay();
+            }
+        }
+
+        function descend() {
+            if (currentZoneIndex < oceanZones.length - 1) {
+                currentZoneIndex++;
+                updateDepthDisplay();
+            }
+        }
+
+        function activateSonar() {
+            const sonarBlip = document.getElementById('sonarBlip');
+            sonarBlip.textContent = sonarCreatures[sonarIndex];
+            sonarIndex = (sonarIndex + 1) % sonarCreatures.length;
+        }
+
+        function toggleLights() {
+            lightsOn = !lightsOn;
+            if (lightsOn) {
+                document.body.style.filter = 'brightness(1.2) contrast(1.1)';
+                const lightBeam = document.createElement('div');
+                lightBeam.className = 'light-beam';
+                lightBeam.id = 'lightBeam';
+                document.body.appendChild(lightBeam);
+            } else {
+                document.body.style.filter = 'none';
+                const lightBeam = document.getElementById('lightBeam');
+                if (lightBeam) lightBeam.remove();
+            }
+        }
+
+        function jumpToZone(zoneIndex) {
+            if (zoneIndex >= 0 && zoneIndex < oceanZones.length) {
+                currentZoneIndex = zoneIndex;
+                updateDepthDisplay();
+            }
+        }
+
+        function logDiscovery(discoveryElement) {
+            const badge = discoveryElement.querySelector('.rarity-badge');
+            const originalText = badge.textContent;
+            badge.textContent = '✓ Logged';
+            badge.style.background = 'linear-gradient(45deg, #00ff88, #00cc66)';
+            setTimeout(() => {
+                badge.textContent = originalText;
+                badge.style.background = 'linear-gradient(45deg, #ffd700, #ffaa00)';
+            }, 2000);
+        }
+
+        function createBubbles() {
+            const bubblesContainer = document.getElementById('bubbles');
+            setInterval(() => {
+                if (bubblesContainer.children.length < 15) {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    bubble.style.left = Math.random() * 100 + '%';
+                    bubble.style.width = bubble.style.height = (Math.random() * 20 + 10) + 'px';
+                    bubble.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                    bubblesContainer.appendChild(bubble);
+                    setTimeout(() => { if (bubble.parentNode) bubble.parentNode.removeChild(bubble); }, 8000);
+                }
+            }, 800);
+        }
+
+        function createMarineLife() {
+            const marineContainer = document.getElementById('marineLife');
+            const fishEmojis = ['🐠', '🐟', '🦈', '🐡', '🦑', '🐙', '🦀', '🦞', '🐋', '🐬'];
+            setInterval(() => {
+                if (marineContainer.children.length < 8) {
+                    const fish = document.createElement('div');
+                    fish.className = 'fish';
+                    fish.textContent = fishEmojis[Math.floor(Math.random() * fishEmojis.length)];
+                    fish.style.top = Math.random() * 80 + 10 + '%';
+                    fish.style.animationDuration = (Math.random() * 8 + 8) + 's';
+                    marineContainer.appendChild(fish);
+                    setTimeout(() => { if (fish.parentNode) fish.parentNode.removeChild(fish); }, 16000);
+                }
+            }, 3000);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            createBubbles();
+            createMarineLife();
+            updateDepthDisplay();
+            setInterval(() => {
+                const sonarBlip = document.getElementById('sonarBlip');
+                sonarBlip.textContent = sonarCreatures[sonarIndex];
+                sonarIndex = (sonarIndex + 1) % sonarCreatures.length;
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

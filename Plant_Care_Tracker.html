@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plant Care Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: transparent;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 28px;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #f3f3f3, #aef0b1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            color: #f2e7e7;
+            font-size: 14px;
+        }
+        
+        .plant-card {
+            background: linear-gradient(135deg, #a8e6cf 0%, #7fcdcd 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(0);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .plant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-color: #4CAF50;
+        }
+        
+        .plant-card.active {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
+        }
+        
+        .plant-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .plant-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2d5a27;
+        }
+        
+        .plant-card.active .plant-name {
+            color: white;
+        }
+        
+        .plant-icon {
+            font-size: 24px;
+            animation: sway 2s ease-in-out infinite;
+        }
+        
+        @keyframes sway {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(3deg); }
+        }
+        
+        .care-status {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .status-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            border-radius: 10px;
+            background: rgba(245, 104, 104);
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .status-item.due {
+            background: rgba(255, 193, 7);
+            color: #ecebe5;
+        }
+        
+        .status-item.overdue {
+            background: rgba(220, 53, 69);
+            color: #fafafa;
+        }
+        
+        .status-item.good {
+            background: rgba(40, 167, 69);
+            color: #c4ccc6;
+        }
+        
+        .plant-card.active .status-item {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .btn-water {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+            color: white;
+        }
+        
+        .btn-water:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+        }
+        
+        .btn-fertilize {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: white;
+        }
+        
+        .btn-fertilize:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+        }
+        
+        .add-plant {
+            background: linear-gradient(135deg, #8ce18f, #05b50e);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 15px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .add-plant:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4bda52;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: whitesmoke;
+            margin-top: 5px;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .header  h1 {
+                font-size: 24px;
+            }
+            
+            .plant-card {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header" >
+           <span style="font-size: 34px;">🌱</span> <h1>  Plant Care Tracker</h1>
+            <p>Keep your green friends happy and healthy</p>
+        </div>
+        
+        <div class="plant-list" id="plantList">
+            <!-- Plant cards will be generated here -->
+        </div>
+        
+        <button class="add-plant" onclick="addNewPlant()">
+            + Add New Plant
+        </button>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalPlants">0</div>
+                <div class="stat-label">Total Plants</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="healthyPlants">0</div>
+                <div class="stat-label">Healthy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="needCare">0</div>
+                <div class="stat-label">Need Care</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        <span id="notificationText"></span>
+    </div>
+    
+    <script>
+        let plants = [
+            {
+                id: 1,
+                name: "Monstera Deliciosa",
+                icon: "🌿",
+                lastWatered: 2,
+                lastFertilized: 10,
+                waterFrequency: 7,
+                fertilizeFrequency: 10
+            },
+            {
+                id: 2,
+                name: "Snake Plant",
+                icon: "🐍",
+                lastWatered: 8,
+                lastFertilized: 25,
+                waterFrequency: 14,
+                fertilizeFrequency: 10
+            },
+            {
+                id: 3,
+                name: "Peace Lily",
+                icon: "🕊️",
+                lastWatered: 4,
+                lastFertilized: 15,
+                waterFrequency: 5,
+                fertilizeFrequency: 11
+            }
+        ];
+        
+        function getStatusClass(daysSince, frequency) {
+            if (daysSince >= frequency) return 'overdue';
+            if (daysSince >= frequency * 0.8) return 'due';
+            return 'good';
+        }
+        
+        function getStatusText(daysSince, frequency, type) {
+            if (daysSince >= frequency) return `${type} overdue`;
+            if (daysSince >= frequency * 0.8) return `${type} due`;
+            return `${type} in ${frequency - daysSince}d`;
+        }
+        
+        function renderPlants() {
+            const plantList = document.getElementById('plantList');
+            plantList.innerHTML = '';
+            
+            plants.forEach(plant => {
+                const waterStatus = getStatusClass(plant.lastWatered, plant.waterFrequency);
+                const fertilizeStatus = getStatusClass(plant.lastFertilized, plant.fertilizeFrequency);
+                
+                const plantCard = document.createElement('div');
+                plantCard.className = 'plant-card';
+                plantCard.innerHTML = `
+                    <div class="plant-info">
+                        <div class="plant-name">${plant.name}</div>
+                        <div class="plant-icon">${plant.icon}</div>
+                    </div>
+                    <div class="care-status">
+                        <div class="status-item ${waterStatus}">
+                            💧 ${getStatusText(plant.lastWatered, plant.waterFrequency, 'Water')}
+                        </div>
+                        <div class="status-item ${fertilizeStatus}">
+                            🌱 ${getStatusText(plant.lastFertilized, plant.fertilizeFrequency, 'Feed')}
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-water" onclick="waterPlant(${plant.id})">
+                            💧 Water
+                        </button>
+                        <button class="btn btn-fertilize" onclick="fertilizePlant(${plant.id})">
+                            🌱 Fertilize
+                        </button>
+                    </div>
+                `;
+                
+                plantList.appendChild(plantCard);
+            });
+            
+            updateStats();
+        }
+        
+        function waterPlant(plantId) {
+            const plant = plants.find(p => p.id === plantId);
+            if (plant) {
+                plant.lastWatered = 0;
+                showNotification(`💧 ${plant.name} has been watered!`);
+                renderPlants();
+            }
+        }
+        
+        function fertilizePlant(plantId) {
+            const plant = plants.find(p => p.id === plantId);
+            if (plant) {
+                plant.lastFertilized = 0;
+                showNotification(`🌱 ${plant.name} has been fertilized!`);
+                renderPlants();
+            }
+        }
+        
+        function addNewPlant() {
+            const plantNames = ['Fiddle Leaf Fig', 'Rubber Plant', 'Pothos', 'ZZ Plant', 'Philodendron'];
+            const plantIcons = ['🌳', '🌿', '🍃', '🌱', '🌾'];
+            
+            const randomName = plantNames[Math.floor(Math.random() * plantNames.length)];
+            const randomIcon = plantIcons[Math.floor(Math.random() * plantIcons.length)];
+            
+            const newPlant = {
+                id: Date.now(),
+                name: randomName,
+                icon: randomIcon,
+                lastWatered: 0,
+                lastFertilized: 0,
+                waterFrequency: 7,
+                fertilizeFrequency: 30
+            };
+            
+            plants.push(newPlant);
+            showNotification(`🌱 ${randomName} added to your collection!`);
+            renderPlants();
+        }
+        
+        function updateStats() {
+            const totalPlants = plants.length;
+            const healthyPlants = plants.filter(plant => 
+                plant.lastWatered < plant.waterFrequency * 0.8 && 
+                plant.lastFertilized < plant.fertilizeFrequency * 0.8
+            ).length;
+            const needCare = totalPlants - healthyPlants;
+            
+            document.getElementById('totalPlants').textContent = totalPlants;
+            document.getElementById('healthyPlants').textContent = healthyPlants;
+            document.getElementById('needCare').textContent = needCare;
+        }
+        
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Simulate time passing (for demo purposes)
+        setInterval(() => {
+            plants.forEach(plant => {
+                plant.lastWatered += 1;
+                plant.lastFertilized += 1;
+            });
+            renderPlants();
+        }, 10000); // Update every 10 seconds (in real app, this would be daily)
+        
+        // Initialize the app
+        renderPlants();
+    </script>
+</body>
+</html>
